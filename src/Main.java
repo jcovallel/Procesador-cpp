@@ -15,7 +15,6 @@ public class Main {
         CommonTokenStream tokens= new CommonTokenStream(lexer);
         CPP14Parser parser= new CPP14Parser(tokens);
         //ParseTree tree = parser.translationunit();
-
         tokens.fill();
 
         //System.out.println(input);
@@ -25,12 +24,16 @@ public class Main {
             //imprimimos el objeto pivote
 
             System.out.println(str.getText()+","+str.getLine()+","+str.getCharPositionInLine());
-            //System.out.println(tokens.getTokenSource());
+            //System.out.println(str.getInputStream().toString().split("\n")[0]);
+            //System.out.println(str.get());
         }
 
         System.out.println("-------------------");
 
-        //System.out.println(Detector.divArray("aux=[1,2,3,4,5]"));
+        //System.out.println(Detector.instruction_by_line(tokens));
+        Detector.instruction_by_line(tokens);
+
+        System.out.println();
 
 
     }
