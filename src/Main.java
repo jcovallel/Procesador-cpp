@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 //import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.*;
@@ -9,13 +11,7 @@ import sun.awt.geom.AreaOp;
 public class Main {
 
     public static void main(String[] args) throws Exception{
-        System.setIn(new FileInputStream(new File("sources/input.txt")));
-        ANTLRInputStream input= new ANTLRInputStream(System.in);
-        CPP14Lexer lexer= new CPP14Lexer(input);
-        CommonTokenStream tokens= new CommonTokenStream(lexer);
-        CPP14Parser parser= new CPP14Parser(tokens);
-        //ParseTree tree = parser.translationunit();
-        tokens.fill();
+        CommonTokenStream tokens= read();
 
         //System.out.println(input);
 
@@ -29,12 +25,24 @@ public class Main {
         }
 
         System.out.println("-------------------");
+        Detector d = new Detector();
 
-        //System.out.println(Detector.instruction_by_line(tokens));
-        Detector.instruction_by_line(tokens);
+        d.instruction_by_line(tokens);
+        tokens=read();
+        d.brackets_indentation(tokens);
 
-        System.out.println();
 
 
+    }
+
+    public static CommonTokenStream read() throws IOException {
+        System.setIn(new FileInputStream(new File("sources/input.txt")));
+        ANTLRInputStream input= new ANTLRInputStream(System.in);
+        CPP14Lexer lexer= new CPP14Lexer(input);
+        CommonTokenStream tokens= new CommonTokenStream(lexer);
+        CPP14Parser parser= new CPP14Parser(tokens);
+        //ParseTree tree = parser.translationunit();
+        tokens.fill();
+        return tokens;
     }
 }
