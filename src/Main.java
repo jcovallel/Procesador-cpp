@@ -30,6 +30,12 @@ public class Main {
         d.instruction_by_line(tokens);
         tokens=read();
         d.brackets_indentation(tokens);
+        System.out.println(d.firstCharacter("     {"));
+        tokens=read();
+        d.conditionals(tokens);
+        tokens=read();
+        d.loops(tokens);
+
 
 
 

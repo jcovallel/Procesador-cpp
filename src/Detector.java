@@ -30,7 +30,7 @@ public class Detector {
 
         for (int i=0; i<in.length-1;i++) {
 
-            if(in[i].contains("if")){
+            if(in[i].contains("for")){
                 continue;
             }
 
@@ -60,6 +60,80 @@ public class Detector {
 
     //******************************************************//
     //                                                      //
+    //      Funcion formato para condicional if             //
+    //                                                      //
+    //******************************************************//
+
+    public void conditionals (CommonTokenStream tks) throws IOException{
+        String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
+        List<String> out = new ArrayList<String>();
+
+        for (int i=0; i<in.length-1;i++) {
+            if(in[i].contains("if") || in[i].contains("else")) {
+                if (in[i].contains("if(")){
+                    in[i]=(in[i].replace("if(", "if ("));
+                }
+
+                if (in[i].contains("){")) {
+
+                    in[i]=(in[i].replace("){", ") {"));
+                }
+                if (in[i].contains("}else")) {
+
+                    in[i]=(in[i].replace("}else", "} else"));
+                }
+                if (in[i].contains("else{")) {
+
+                    in[i]=(in[i].replace("else{", "else {"));
+                }
+
+            }
+            else {
+                    out.add(in[i]);
+                    continue;
+            }
+            out.add(in[i]);
+
+        }
+        writeTxt(out);
+
+
+
+    }
+
+    public void loops (CommonTokenStream tks) throws IOException{
+        String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
+        List<String> out = new ArrayList<String>();
+
+        for (int i=0; i<in.length-1;i++) {
+
+                if (in[i].contains("for(")) {
+                    in[i] = (in[i].replace("for(", "for ("));
+                }
+
+                if (in[i].contains("){")) {
+                        in[i] = (in[i].replace("){", ") {"));
+                }
+
+                if(in[i].contains("while(") ) {
+                    in[i] = (in[i].replace("while(", "while ("));
+
+            }
+            else {
+                out.add(in[i]);
+                continue;
+            }
+            out.add(in[i]);
+
+        }
+        writeTxt(out);
+
+
+
+    }
+
+    //******************************************************//
+    //                                                      //
     //      Funcion que tabula line por linea dependiendo   //
     //      de la hubicacion por corchetes {}               //
     //                                                      //
@@ -69,36 +143,50 @@ public class Detector {
         Stack<Integer> stack = new Stack<Integer>();
         List<String> out = new ArrayList<String>();
         int line=0;
+        int count=1;
         String text="";
         String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
+        boolean b=false;
 
 
 
         for(Token str : tks.getTokens()) {
 
             if(str.getText().contains("{")){
+                if(stack.size()==0) {
+                    b=true;
+                }
                 stack.push(str.getLine());
             }else if(str.getText().contains("}")){
                 stack.pop();
             }
+
             if(str.getLine()!=line ){
                 line=str.getLine();
-                if(str.getCharPositionInLine()==stack.size()*2){
-                    out.add(in[line-1]);
 
-                }else if(stack.size()>0) {
+                if(stack.size()==0){
+                    out.add(in[line-1].substring(firstCharacter(in[line-1])));
 
-                    if(str.getCharPositionInLine()>=stack.size()*2){
-                        out.add(in[line-1].substring(str.getCharPositionInLine()-stack.size()*2));
-                    }else if (stack.peek() != line) {
-                        out.add(esp(stack.size() * 2 - str.getCharPositionInLine()) + in[line - 1]);
-                    }else{
-                        if(stack.peek()==line){
-                            out.add(esp((stack.size()-1)*2)+"{");
+                }else if(stack.peek()==line){
+                    if(b){
+                        out.add(in[line-1].substring(firstCharacter(in[line-1])));
+                        b=false;
+
+                    }else {
+                        if(firstCharacter(in[line-1])==in[line-1].indexOf("{")+1) {
+                            out.add(esp((stack.size() - 2) * 2) + in[line - 1].substring(firstCharacter(in[line - 1])));
+
+                        }else {
+                            out.add(esp((stack.size()-1) * 2) + in[line - 1].substring(firstCharacter(in[line - 1])));
                         }
-
                     }
+                }else{
+
+                    out.add(esp(stack.size() * 2) + in[line - 1].substring(firstCharacter(in[line - 1])));
+
+
                 }
+
             }
 
         }
@@ -108,47 +196,15 @@ public class Detector {
     }
 
 
-    /*public void loops(CommonTokenStream tks) throws IOException{
-        String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
-        List<String> out = new ArrayList<String>();
-        String tipe;
-        String []aux1,aux2;
-
-        for(int i=0; i<in.length;i++){
-            if(in[i].indexOf("for")!= -1){
-                aux1=in[i].split("for");
-                out.add(aux1[0]+"for "+aux1[1].substring(0,aux1[1].indexOf(")")+1)+" "+aux1[1].substring(aux1[1].indexOf(")")+1));
-
-            }else{
-                out.add(in[i]);
+    public int firstCharacter(String x){
+        for(int i=0; i< x.length(); i++){
+            if(x.charAt(i)!=' '){
+                return i;
             }
         }
-        writeTxt(out.subList(0,out.size()-1));
-    }*/
+        return 0;
+    }
 
-   /* public void brackets(CommonTokenStream tks) throws IOException{
-        String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
-        List<String> out = new ArrayList<>();
-        String aux;
-
-        for(int i=0; i<in.length;i++){
-
-            if(in[i].indexOf("{")!=-1) {
-                aux=in[i].substring(0,in[i].indexOf("{"));
-                out.add(aux);
-                out.add("{");
-
-            }else if(in[i].indexOf("}")!=-1){
-                aux=in[i].substring(0,in[i].indexOf("}"));
-                out.add(aux);
-                out.add("}");
-
-            }else{
-                out.add(in[i]);
-            }
-        }
-        writeTxt(out.subList(0,out.size()-1));
-    }*/
 
     //******************************************************//
     //                                                      //

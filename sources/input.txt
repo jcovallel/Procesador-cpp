@@ -6,13 +6,16 @@ int main()
   cout<<"ingrese un numero: ";
   cin>>a;
   cout<<"ingrese otro numero: ";
-  int a;
-  int b;
   cin>>b;
-  for (a <= b) {
-    c=c+1;
-    a=a+1;
+  {
+    while (a==b) {
+      if (a%2!=0) {
+        c=c+1;
+      }
+      a=a+1;
+    }
   }
   cout<<c<<endl;
   cin.ignore();
   return 0;
+}
