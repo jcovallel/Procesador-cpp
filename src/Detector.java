@@ -5,10 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.*;
 
 public class Detector {
 
@@ -29,8 +26,8 @@ public class Detector {
         int count;
 
         for (int i=0; i<in.length-1;i++) {
-
             if(in[i].contains("for")){
+                out.add(in[i]);
                 continue;
             }
 
@@ -96,10 +93,8 @@ public class Detector {
 
         }
         writeTxt(out);
-
-
-
     }
+
 
     public void loops (CommonTokenStream tks) throws IOException{
         String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
@@ -148,10 +143,7 @@ public class Detector {
         String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
         boolean b=false;
 
-
-
         for(Token str : tks.getTokens()) {
-
             if(str.getText().contains("{")){
                 if(stack.size()==0) {
                     b=true;
@@ -190,11 +182,98 @@ public class Detector {
             }
 
         }
-        System.out.println(stack);
+        //System.out.println(stack);
         writeTxt(out.subList(0,out.size()-1));
 
     }
 
+    //******************************************************//
+    //                                                      //
+    //      Funcion que tabula los parametros de una        //
+    //      funcion para ajustarse a las normas             //
+    //                                                      //
+    //******************************************************//
+    public void vertical_align(CommonTokenStream tks) throws IOException{
+        String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
+        List<String> out = new ArrayList<String>();
+
+        for (int i=0; i<in.length-1;i++) {
+            if(in[i].contains("(") && in[i].length()>80) {
+                int length = in[i].length();
+                int index = in[i].indexOf("(")+1;
+                int numspaces = 0;
+                for (int a = 0; a < length && in[i].charAt(a) == ' '; a++) {
+                    numspaces++;
+                }
+                int commaposition = 0;
+                int inicio = 0;
+                int fin=0;
+
+                if (index > 80 || in[i].indexOf(",")>80) {
+                    out.add(in[i].substring(0, index + 1));
+                    inicio = index + 1;
+                    for (int b = inicio; b < length; b++) {
+                        if (in[i].charAt(b) == ',') {
+                            out.add(esp(numspaces + 4) + in[i].substring(inicio, b + 1));
+                            inicio = b + 1;
+                        }
+                    }
+                    out.add(esp(numspaces + 4) + in[i].substring(inicio));
+                } else {
+                    for (int j = inicio; j < length; j++) {
+                        if (in[i].charAt(j) == ',') {
+                            commaposition = j + 1;
+                        }
+                        if (j % 80 == 0 && inicio == 0) {
+                            out.add(in[i].substring(inicio,commaposition));
+                            inicio = commaposition;
+                            fin = commaposition;
+                        }
+                        if (j==(inicio+(fin-index)) && inicio!=0){
+                            out.add(esp(index)+in[i].substring(inicio,commaposition));
+                            inicio = commaposition;
+                        }
+                    }
+                    out.add(esp(index) + in[i].substring(inicio));
+                }
+            }else {
+                out.add(in[i]);
+            }
+        }
+        writeTxt(out);
+    }
+
+    //******************************************************//
+    //                                                      //
+    //      Funcion que cambia las L al final del nombre    //
+    //      de un identificador                             //
+    //                                                      //
+    //******************************************************//
+    public void L_changer(CommonTokenStream tks) throws IOException{
+        String [] in= tks.getTokens().get(0).getInputStream().toString().split("\n");
+        List<String> out = new ArrayList<String>();
+        int linea=0;
+        String identifier="";
+
+        for (Token str : tks.getTokens()) {
+            if (str.getType() == 127 || str.getType() == 137 || str.getType() == 138
+                    || str.getType() == 139 || str.getType() == 140) {
+                if (str.getText().contains("l") && str.getText().contains("1")) {
+                    linea=str.getLine();
+                    identifier=str.getText();
+                }
+            }
+        }
+        for(int i=0;i<in.length-1;i++){
+            if(i==linea-1) {
+                String identifierreplace=identifier.replace("l","L");
+                out.add(in[i].replace(identifier,identifierreplace));
+            }else {
+                out.add(in[i]);
+            }
+        }
+        writeTxt(out);
+    }
 
     public int firstCharacter(String x){
         for(int i=0; i< x.length(); i++){

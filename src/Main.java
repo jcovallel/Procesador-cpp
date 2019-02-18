@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 //import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.*;
@@ -13,24 +15,14 @@ public class Main {
     public static void main(String[] args) throws Exception{
         CommonTokenStream tokens= read();
 
-        //System.out.println(input);
-
-        for(Token str : tokens.getTokens())
-        {
-            //imprimimos el objeto pivote
-
-            System.out.println(str.getText()+","+str.getLine()+","+str.getCharPositionInLine());
-            //System.out.println(str.getInputStream().toString().split("\n")[0]);
-            //System.out.println(str.get());
-        }
-
-        System.out.println("-------------------");
         Detector d = new Detector();
 
         d.instruction_by_line(tokens);
         tokens=read();
         d.brackets_indentation(tokens);
-        System.out.println(d.firstCharacter("     {"));
+        d.vertical_align(tokens);
+        d.L_changer(tokens);
+        //System.out.println(d.firstCharacter("     {"));
         tokens=read();
         d.conditionals(tokens);
         tokens=read();

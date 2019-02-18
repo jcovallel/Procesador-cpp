@@ -11,10 +11,25 @@ int main()
     while (a==b) {
       if (a%2!=0) {
         c=c+1;
-      }
       a=a+1;
-    }
+
+
+  int mifuncionrelargaquehaceunmontondecosas (int argumento1, int argumento2,
+                                               int argumento3, int argumento4,
+                                               int argumento5) {
+    cout<<"1=1"<<endl;
   }
+
+
+  String nueva(int argumento1,int argumento2,int argumento3,int argumento4,
+               int argumento5{
+    cout<<"esta es una prueba"<<endl;
+  }
+  for (a <= b) {
+    c=c+1;
+    a=a+1;
+  }
+  int 1oL = 1997;
   cout<<c<<endl;
   cin.ignore();
   return 0;
